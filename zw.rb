@@ -27,6 +27,38 @@ def initialize
   
   @seiten = [@front, @back, @top, @bottom, @left, @right]
 end
+public
+
+def get_square(side, number)
+  return @seiten[side][number]
+end
+
+def get_side(side)
+  return @seiten[side]
+end
+
+def ==(other)
+  z = 0
+  check = 0
+  while z < 6
+    za = 0
+    while za < 9
+      if @seiten[z][za] == other.return_square(z, za)
+
+      else
+        check = 1
+        break
+        break
+      end
+    end
+  end
+  if check == 0
+    return true
+  else
+    return false
+  end
+end
+      
 private
 #ktr 17. 07
 def disp_singl(sidenum)
@@ -183,9 +215,10 @@ def rot_cube(way)
 end
 
 
+
 public
-def turn_counter_clock(zeile)
-  case zeile
+def turn_counter_clock(zle)
+  case zle
   when 0
     cntr_clock(0)
     3.times do
@@ -257,14 +290,13 @@ a.rot_cube("clock")
 a.rot_cube("clock")
 a.rot_cube("clock")
 a.rot_cube("clock")
-if checkcube == a
+if checkcube==a
   puts "funktioniert"
 else
   puts "nein"
 end
 
-a.display
-checkcube.display
+
 
 
 
