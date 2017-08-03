@@ -247,8 +247,8 @@ class Wuerfel
   
 end
 
-class View cube
-  def initialize
+class View
+  def initialize(cube)
     @name = cube
     @seiten = @name.get_cube
   end
@@ -273,7 +273,7 @@ class View cube
     #ktr 17.07
     z2 = 0
     while z2 < 9 
-      puts "#{@seiten[a][z2]} #{@seiten[a][z2 + 1]} #{@seiten[a][z2 + 2]}     #{@seiten[b][z2]} #{@seiten[b][z2 + 1]} #{@seiten[b][z2 + 2]}     #{@seiten[c][z2]} #{@seiten[c][z2 + 1]} #{@seiten[c][z2 + 2]     #{@seiten[d][z2]} #{@seiten[d][z2 + 1]} #{@seiten[d][z2 + 2]} "
+      puts "#{@seiten[a][z2]} #{@seiten[a][z2 + 1]} #{@seiten[a][z2 + 2]}     #{@seiten[b][z2]} #{@seiten[b][z2 + 1]} #{@seiten[b][z2 + 2]}     #{@seiten[c][z2]} #{@seiten[c][z2 + 1]} #{@seiten[c][z2 + 2]}     #{@seiten[d][z2]} #{@seiten[d][z2 + 1]} #{@seiten[d][z2 + 2]} "
       z2 = z2 + 3
     end
     puts ""
@@ -283,18 +283,18 @@ class View cube
   public
   
   def display
-    @seiten = @name.get
+    @seiten = @name.get_cube
     disp_singl(2)
     disp_quad(4, 0, 5, 1)
     disp_singl(3)
   end
 end
 
-class Controller name
-  def initialize
-    @cube = name
+class Controller
+  def initialize(cube)
+    @cube = cube
   end
-
+  public
   def rotate(way)
     @cube.rot_cube(way)
   end
@@ -317,28 +317,11 @@ end
 
 
     
-a = Wuerfel.new
-a.display
-a.turn_clock(0)
-a.display
-checkcube = a.dup
-a.turn_down(0)
-a.turn_up(0)
-a.turn_clock(1)
-a.turn_counter_clock(1)
-a.rot_cube("up")
-a.rot_cube("down")
-a.rot_cube("clock")
-a.rot_cube("clock")
-#a.rot_cube("clock")
-a.rot_cube("clock")
-if a==checkcube
-  puts "funktioniert"
-else
-  puts "nein"
-end
+cube = Wuerfel.new
+dispcube = View.new(cube)
 
-
+contcube = Controller.new(cube)
+dispcube.display
 
 
 
