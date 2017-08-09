@@ -117,12 +117,12 @@ class Wuerfel
   end
 
   
- # def sw_t(a, aa, b)
-    #vertauschen einzelner felder a = seite aa = feld mit variable b
+  # def sw_t(a, aa, b)
+  #vertauschen einzelner felder a = seite aa = feld mit variable b
   #  copy = b
-   # b  = @seiten[a][aa]
-   # @seiten[a][aa] = copy
- # end
+  # b  = @seiten[a][aa]
+  # @seiten[a][aa] = copy
+  # end
   private
   def swtab(twod_array)
     count = 0
@@ -133,7 +133,7 @@ class Wuerfel
       else
         # sw_t(twod_array[count][0], twod_array[count][1], copy)
         cp = @seiten[twod_array[count][0]][twod_array[count][1]]
-        @seiten[twod_array[count][0]][towd_array[count][1]] = copy
+        @seiten[twod_array[count][0]][twod_array[count][1]] = copy
         copy = cp
       end
       count = count + 1
@@ -147,24 +147,24 @@ class Wuerfel
   
   def prim_down(p_s)
     #die spalten sind mit 0,1,2 von links nach rechts beschriftet. Darstellung im Schachbrett Muster
-   # switch_spalte(3, p_s, 1, p_s)
-   # switch_spalte(3, p_s, 2, p_s)
+    # switch_spalte(3, p_s, 1, p_s)
+    # switch_spalte(3, p_s, 2, p_s)
     # switch_spalte(3, p_s, 0, p_s)
     case p_s
     when 0
-      sw_tab([[0, 0], [3, 0], [1, 8], [2, 0], [0, 0]])
-      sw_tab([[0, 3], [3, 3], [1, 5], [2, 3], [0, 3]])
-      sw_tab([[0, 6], [3, 6], [1, 2], [2, 6], [0, 6]])
+      swtab([[0, 0], [3, 0], [1, 8], [2, 0], [0, 0]])
+      swtab([[0, 3], [3, 3], [1, 5], [2, 3], [0, 3]])
+      swtab([[0, 6], [3, 6], [1, 2], [2, 6], [0, 6]])
     when 1
-      sw_tab([[0, 1], [3, 1], [1, 7], [2, 1], [0, 1]])
-      sw_tab([[0, 4], [3, 4], [1, 4], [2, 4], [0, 4]])
-      sw_tab([[0, 7], [3, 7], [1, 1], [2, 7], [0, 7]])
+      swtab([[0, 1], [3, 1], [1, 7], [2, 1], [0, 1]])
+      swtab([[0, 4], [3, 4], [1, 4], [2, 4], [0, 4]])
+      swtab([[0, 7], [3, 7], [1, 1], [2, 7], [0, 7]])
     when 2
-      sw_tab([[0, 2], [3, 2], [1, 6], [2, 2], [0, 2]])
-      sw_tab([[0, 5], [3, 5], [1, 3], [2, 5], [0, 5]])
-      sw_tab([[0, 8], [3, 8], [1, 0], [2, 8], [0, 8]])
+      swtab([[0, 2], [3, 2], [1, 6], [2, 2], [0, 2]])
+      swtab([[0, 5], [3, 5], [1, 3], [2, 5], [0, 5]])
+      swtab([[0, 8], [3, 8], [1, 0], [2, 8], [0, 8]])
+    end
   end
-  
   
   private
   def switch_sides(sid1, sid2)
@@ -191,6 +191,7 @@ class Wuerfel
   
   
   public
+  
   def rot_cube(way)
     case way
     when "up"
@@ -296,8 +297,8 @@ class Wuerfel
   end
   
   
-  end
-end  
+end
+
 class View
   def initialize(cube)
     @name = cube
@@ -316,8 +317,8 @@ class View
     puts ""
     puts ""
   end
-    
-    
+  
+  
   private
   
   def disp_quad(a, b, c, d)
@@ -328,7 +329,7 @@ class View
       z2 = z2 + 3
     end
     puts ""
-      puts ""
+    puts ""
   end
   
   public
@@ -346,7 +347,7 @@ class Controller
     @cube = cube
     @view = view
   end
-  private
+  public
   def rotate(way)
     @cube.rot_cube(way)
   end
@@ -385,7 +386,7 @@ class Controller
           when 6
             tile = 8
           else
-              tile = tile - 1
+            tile = tile - 1
           end
           if s_ch == true
             case side
@@ -430,7 +431,7 @@ class Controller
           end
         end
       when "s"
-        if tile == 6, 7, 8
+        if tile == 6 || tile == 7 || tile == 8
           s_ch == true
         end
         case tile
@@ -455,7 +456,7 @@ class Controller
         end
         
       when "w"
-        if tile == 0, 1, 2
+        if tile == 0 || tile == 1 || tile == 2
           s_ch == true
         end
         case tile
@@ -624,13 +625,14 @@ end
 
 
 
-    
+
 cub = Wuerfel.new
 dispcube = View.new(cub)
 
-contcube = Controller.new(cub)
+contcube = Controller.new(cub, dispcube)
 dispcube.display
 contcube.rotate("up")
 dispcube.display
 contcube.rotate("down")
 dispcube.display
+contcube.respond_to_user_input
