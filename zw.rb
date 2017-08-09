@@ -1,5 +1,14 @@
 # coding: utf-8
 # blickrichtung auf den würfel von forne(vorderseite front
+def getch
+  state = `stty -g`
+  begin
+    `stty raw -echo cbreak`
+    $stdin.getc
+  ensure
+    `stty #{state}`
+  end
+end
 
 class Wuerfel
   def initialize
@@ -16,12 +25,12 @@ class Wuerfel
     # 4 left
     # 5 right
     # kreuz angelegt top mitte, 
-    @front =[1, 2, 3, 5, 6, 4, 5, 2, 3]
-    @back =[4, 5, 2, 3, 6, 6, 2, 1, 3]
-    @top = [1, 5, 4, 6, 2, 1, 4, 2 ,6]
-    @bottom = [1, 3, 6, 4, 5, 1, 2, 3, 4]
-    @left = [5, 3, 4, 6, 3, 1, 2, 3, 6]
-    @right= [1, 2, 4, 5, 1, 5, 5, 4, 6]
+    @front =[3, 6, 5, 4, 1, 6, 5, 2, 3]
+    @back =[2, 5, 5, 1, 3, 2, 6, 1, 6]
+    @top = [6, 6, 4, 5, 2, 4, 5, 1, 1]
+    @bottom = [4, 6, 4, 4, 5, 5, 3, 2, 1]
+    @left = [3, 1, 4, 3, 4, 3, 2, 5, 1]
+    @right= [6, 2, 1, 3, 6, 4, 2, 3, 2]
     
     
     
@@ -106,14 +115,54 @@ class Wuerfel
     switch_zeile(0, p_z, 1, p_z)
     switch_zeile(0, p_z, 4, p_z)
   end
+
   
+ # def sw_t(a, aa, b)
+    #vertauschen einzelner felder a = seite aa = feld mit variable b
+  #  copy = b
+   # b  = @seiten[a][aa]
+   # @seiten[a][aa] = copy
+ # end
+  private
+  def swtab(twod_array)
+    count = 0
+    copy = nil
+    while count < twod_array.length
+      if   copy == nil
+        copy =  @seiten[twod_array[count][0]][twod_array[count][1]]
+      else
+        # sw_t(twod_array[count][0], twod_array[count][1], copy)
+        cp = @seiten[twod_array[count][0]][twod_array[count][1]]
+        @seiten[twod_array[count][0]][towd_array[count][1]] = copy
+        copy = cp
+      end
+      count = count + 1
+    end
+  end
+
+
   
   private
+
+  
   def prim_down(p_s)
     #die spalten sind mit 0,1,2 von links nach rechts beschriftet. Darstellung im Schachbrett Muster
-    switch_spalte(3, p_s, 1, p_s)
-    switch_spalte(3, p_s, 2, p_s)
-    switch_spalte(3, p_s, 0, p_s)
+   # switch_spalte(3, p_s, 1, p_s)
+   # switch_spalte(3, p_s, 2, p_s)
+    # switch_spalte(3, p_s, 0, p_s)
+    case p_s
+    when 0
+      sw_tab([[0, 0], [3, 0], [1, 8], [2, 0], [0, 0]])
+      sw_tab([[0, 3], [3, 3], [1, 5], [2, 3], [0, 3]])
+      sw_tab([[0, 6], [3, 6], [1, 2], [2, 6], [0, 6]])
+    when 1
+      sw_tab([[0, 1], [3, 1], [1, 7], [2, 1], [0, 1]])
+      sw_tab([[0, 4], [3, 4], [1, 4], [2, 4], [0, 4]])
+      sw_tab([[0, 7], [3, 7], [1, 1], [2, 7], [0, 7]])
+    when 2
+      sw_tab([[0, 2], [3, 2], [1, 6], [2, 2], [0, 2]])
+      sw_tab([[0, 5], [3, 5], [1, 3], [2, 5], [0, 5]])
+      sw_tab([[0, 8], [3, 8], [1, 0], [2, 8], [0, 8]])
   end
   
   
@@ -145,18 +194,20 @@ class Wuerfel
   def rot_cube(way)
     case way
     when "up"
-      switch_sides(2, 1)
-      switch_sides(2, 3)
-      switch_sides(0, 2)
+      3.times do
+        prim_down(0)
+        prim_down(1)
+        prim_down(2)
+      end
       rotr_surf(5)
       rotr_surf(4)
       rotr_surf(4)
       rotr_surf(4)
     when "down"
       3.times do
-        switch_sides(2, 1)
-        switch_sides(2, 3)
-        switch_sides(0, 2)
+        prim_down(0)
+        prim_down(1)
+        prim_down(2)
         rotr_surf(5)
         rotr_surf(4)
         rotr_surf(4)
@@ -245,14 +296,14 @@ class Wuerfel
   end
   
   
-end
-
+  end
+end  
 class View
   def initialize(cube)
     @name = cube
     @seiten = @name.get_cube
   end
-        
+  
   private
   #ktr 17. 07
   def disp_singl(sidenum)
@@ -265,8 +316,8 @@ class View
     puts ""
     puts ""
   end
-
-
+    
+    
   private
   
   def disp_quad(a, b, c, d)
@@ -277,7 +328,7 @@ class View
       z2 = z2 + 3
     end
     puts ""
-    puts ""
+      puts ""
   end
   
   public
@@ -291,10 +342,11 @@ class View
 end
 
 class Controller
-  def initialize(cube)
+  def initialize(cube, view)
     @cube = cube
+    @view = view
   end
-  public
+  private
   def rotate(way)
     @cube.rot_cube(way)
   end
@@ -310,46 +362,275 @@ class Controller
   def turn_down(spalte)
     @cube.turn_down(spalte)
   end
+  def respond_to_user_input
+    # asdw for cursor movements
+    clear_code = %x{clear}
+    tile = 4
+    side = 0
+    sides = ["front", "back", "top", "bottom", "left", "right"]
+    while (c = getch) != "\e" 
+      print clear_code
+      puts "Cursor at side: #{sides[side]}, tile #{tile}."
+      @view.display
+      case c
+      when "a"
+        case tile
+        when 0, 3, 7
+          s_ch = true
+          case tile
+          when 0
+            tile = 2
+          when 3
+            tile = 5
+          when 6
+            tile = 8
+          else
+              tile = tile - 1
+          end
+          if s_ch == true
+            case side
+            when 0
+              side = 4
+            when 1
+              side = 5
+            when 4
+              side = 1
+            when 5
+              side = 0
+            else
+            end
+          end
+        end
+      when "d"
+        case tile
+        when 2, 5, 8
+          s_ch = true
+          case tile
+          when 2
+            tile = 0
+          when 5
+            tile = 3
+          when 8
+            tile = 6
+          else
+            tile = tile + 1
+          end
+          if s_ch == true
+            case side
+            when 0
+              side = 5
+            when 1
+              side = 4
+            when 4
+              side = 0
+            when 5
+              side = 1
+            else
+            end
+          end
+        end
+      when "s"
+        if tile == 6, 7, 8
+          s_ch == true
+        end
+        case tile
+        when 6
+          tile = 0
+        when 7
+          tile = 1
+        when 8
+          tile = 2
+        else
+          tile = tile + 3
+        end
+        if s_ch == true
+          case side
+          when 0
+            side = 3
+          when 3
+            side = 2
+          when 2
+            side = 0
+          end
+        end
+        
+      when "w"
+        if tile == 0, 1, 2
+          s_ch == true
+        end
+        case tile
+        when 0
+          tile = 6
+        when 1
+          tile = 7
+        when 2
+          tile = 8
+        else
+          tile = tile - 3
+        end
+        if s_ch == true
+          case side
+          when 0
+            side = 2
+          when 3
+            side = 0
+          when 2
+            side = 3
+          end
+        end
+      when "j"
+        case side
+        when 0, 1, 4, 5
+          case tile
+          when 0, 1, 2
+            turn_clock(0)
+          when 3, 4, 5
+            turn_clock(3)
+          when 6, 7, 8
+            turn_clock(6)
+          end
+        when 2
+          rotate("down")
+          case tile
+          when 0, 1, 2
+            turn_clock(0)
+          when 3, 4, 5
+            turn_clock(3)
+          when 6, 7, 8
+            turn_clock(6)
+          end
+          rotate("up")
+        when 3
+          rotate("up")
+          case tile
+          when 0, 1, 2
+            turn_clock(0)
+          when 3, 4, 5
+            turn_clock(3)
+          when 5, 6, 7
+            turn_clock(6)
+          end
+          rotate("down")
+        end
+      when "l"
+        case side
+        when 0, 1, 4, 5
+          case tile
+          when 0, 1, 2
+            turn_counter_clock(0)
+          when 3, 4, 5
+            turn_counter_clock(3)
+          when 6, 7, 8
+            turn_counter_clock(6)
+          end
+        when 2
+          rotate("down")
+          case tile
+          when 0, 1, 2
+            turn_counter_clock(0)
+          when 3, 4, 5
+            turn_counter_clock(3)
+          when 6, 7, 8
+            turn_counter_clock(6)
+          end
+          rotate("up")
+        when 3
+          rotate("up")
+          case tile
+          when 0, 1, 2
+            turn_counter_clock(0)
+          when 3, 4, 5
+            turn_counter_clock(3)
+          when 6, 7, 8
+            turn_counter_clock(6)
+          end
+        end
+      when "i"
+        case side
+        when 0, 1, 2, 3
+          case tile
+          when 0, 3, 6
+            turn_up(0)
+          when 1, 4, 7
+            turn_up(1)
+          when 2, 5, 8
+            turn_up(2)
+          end
+        when 4
+          rotate("counter_clock")
+          case tile
+          when 0, 3, 6
+            turn_up(0)
+          when 1, 4, 7
+            turn_up(1)
+          when 2, 5, 8
+            turn_up(2)
+          end
+          rotate("clock")
+        when 5
+          rotate("clock")
+          case tile
+          when 0, 3, 6
+            turn_up(0)
+          when 1, 4, 7
+            turn_up(1)
+          when 2, 5, 8
+            turn_up(2)
+          end
+          rotate("counter_clock")
+        end
+      when "k"
+        case side
+        when 0, 1, 2, 3
+          case tile
+          when 0, 3, 6
+            turn_down(0)
+          when 1, 4, 7
+            turn_down(1)
+          when 2, 5, 8
+            turn_down(2)
+          end
+        when 4
+          rotate("counter_clock")
+          case tile
+          when 0, 3, 6
+            turn_down(0)
+          when 1, 4, 7
+            turn_down(1)
+          when 2, 5, 8
+            turn_down(2)
+            rotate("clock")
+          end
+        when 5
+          rotate("clock")
+          case tile
+          when 0, 3, 6
+            turn_down(0)
+          when 1, 4, 7
+            turn_down(1)
+          when 2, 5, 8
+            turn_down(2)
+          end
+        end
+      end
+      
+    end
+  end
+  
 end
 
 
 
 
 
-    
-cube = Wuerfel.new
-dispcube = View.new(cube)
 
-contcube = Controller.new(cube)
+    
+cub = Wuerfel.new
+dispcube = View.new(cub)
+
+contcube = Controller.new(cub)
 dispcube.display
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-  
-
-                                        
-                                          
+contcube.rotate("up")
+dispcube.display
+contcube.rotate("down")
+dispcube.display
