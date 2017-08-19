@@ -1,4 +1,6 @@
 # coding: utf-8
+# coding: utf-8
+#require 'pry'
 # blickrichtung auf den würfel von forne(vorderseite front
 def getch
   state = `stty -g`
@@ -117,14 +119,10 @@ class Wuerfel
   end
 
   
-  # def sw_t(a, aa, b)
-  #vertauschen einzelner felder a = seite aa = feld mit variable b
-  #  copy = b
-  # b  = @seiten[a][aa]
-  # @seiten[a][aa] = copy
-  # end
+  
   private
   def swtab(twod_array)
+    # when given a 2d array with cordinates(side, tile) it switches them through
     count = 0
     copy = nil
     while count < twod_array.length
@@ -178,9 +176,10 @@ class Wuerfel
   
   private
   def rotr_surf(sidenum)
-    # dreht eine oberfläche des Würfels im Uhrzeigersinn
+    
+    # rotates surface  counter clock
     # front back top bottom left right sind die seiten. Nummerierung beginnt mit 0
-    matrix = [6 ,3, 0, 7, 4, 1, 8, 5, 2]
+    matrix = [2 ,5, 8, 1, 4, 7, 0, 3, 6]
     cpy = @seiten[sidenum].dup
     i = 0
     while i < 9
@@ -200,40 +199,41 @@ class Wuerfel
         prim_down(1)
         prim_down(2)
       end
+      rotr_surf(4)
       rotr_surf(5)
-      rotr_surf(4)
-      rotr_surf(4)
-      rotr_surf(4)
+      rotr_surf(5)
+      rotr_surf(5)
     when "down"
       3.times do
-        prim_down(0)
-        prim_down(1)
-        prim_down(2)
+        3.times do
+          prim_down(0)
+          prim_down(1)
+          prim_down(2)
+        end
+        rotr_surf(4)
         rotr_surf(5)
-        rotr_surf(4)
-        rotr_surf(4)
-        rotr_surf(4)
+        rotr_surf(5)
+        rotr_surf(5)
       end
     when "clock"
       #viewed from the top
       switch_sides(0, 4)
       switch_sides(0, 1)
       switch_sides(5, 0)
-      rotr_surf(2)
+      rotr_surf(3)
       3.times do
-        rotr_surf(3)
+        rotr_surf(2)
       end
-      rotr_surf(2)
     when "counter_clock"
       3.times do
         switch_sides(0, 4)
         switch_sides(0, 1)
         switch_sides(5, 0)
+      end
         rotr_surf(2)
         3.times do
           rotr_surf(3)
         end
-      end
     else
       fail "Falscher parameter"
     end
@@ -246,14 +246,15 @@ class Wuerfel
     case zle
     when 0
       cntr_clock(0)
-      3.times do
-        rotr_surf(2)
-      end
+      rotr_surf(2)
+      
     when 1
       cntr_clock(3)
     when 2
       cntr_clock(6)
-      rotr_surf(3)
+      3.times do
+        rotr_surf(3)
+      end
     end
   end
   
@@ -274,8 +275,6 @@ class Wuerfel
         prim_down(0)
       end
       rotr_surf(4)
-      rotr_surf(4)
-      rotr_surf(4)
     when 1
       3.times do
         prim_down(1)
@@ -283,8 +282,8 @@ class Wuerfel
     when 2
       3.times do
         prim_down(2)
+        rotr_surf(5)
       end
-      rotr_surf(5)
     end
   end
   
@@ -307,12 +306,25 @@ class View
   
   private
   #ktr 17. 07
-  def disp_singl(sidenum)
-    z1 = 0
+  def disp_singl(sidenum, highl = nil)
+    z1 = 1
     #zahlenblock breite 5, spacing 4
-    while z1 < 9
-      puts "          #{@seiten[sidenum][z1]} #{@seiten[sidenum][z1 + 1]} #{@seiten[sidenum][z1 + 2]}"
-      z1 = z1 + 3
+    print "          "
+    while z1 <= 9
+      
+      
+      if highl == z1 - 1
+        print "\033[7m#{@seiten[sidenum][z1 - 1]}\033[0m"
+        print " "
+      else
+        print "#{@seiten[sidenum][z1 - 1]} "
+      end
+      if z1%3 == 0
+        puts ""
+        print "          "
+      else
+      end
+      z1 = z1 + 1
     end
     puts ""
     puts ""
@@ -321,12 +333,49 @@ class View
   
   private
   
-  def disp_quad(a, b, c, d)
+  def disp_quad(a, b, c, d, sideh = nil, tileh = nil)
     #ktr 17.07
-    z2 = 0
-    while z2 < 9 
-      puts "#{@seiten[a][z2]} #{@seiten[a][z2 + 1]} #{@seiten[a][z2 + 2]}     #{@seiten[b][z2]} #{@seiten[b][z2 + 1]} #{@seiten[b][z2 + 2]}     #{@seiten[c][z2]} #{@seiten[c][z2 + 1]} #{@seiten[c][z2 + 2]}     #{@seiten[d][z2]} #{@seiten[d][z2 + 1]} #{@seiten[d][z2 + 2]} "
-      z2 = z2 + 3
+    # 5 spaces between blocks
+    add_value = 0
+    z2 = 1
+    c_sides = 0
+    c_tile = 0
+    highl = false
+    sides = [a, b, c, d]
+    while z2 <= 36
+      if sideh == sides[c_sides]
+        if tileh == c_tile
+          highl = true
+        end
+      end
+      if highl == true
+        print "\033[7m#{@seiten[sides[c_sides]][c_tile]}\033[0m"
+        print" "
+        highl = false
+      else
+        print "#{@seiten[sides[c_sides]][c_tile]} "
+      end
+      if z2%3 == 0
+        if z2%12 == 0
+          puts""
+        else
+          print "    "
+        end
+      end
+      if z2%3 == 0
+        if z2%12 == 0
+          c_sides = 0
+          c_tile = c_tile + 1
+          add_value = add_value + 3
+        else
+          c_tile = add_value
+          c_sides = c_sides + 1
+        end
+      else
+        c_tile = c_tile + 1
+      end
+      
+      z2 = z2 + 1
     end
     puts ""
     puts ""
@@ -334,11 +383,23 @@ class View
   
   public
   
-  def display
+  def display(sideh = nil, tileh = nil)
     @seiten = @name.get_cube
-    disp_singl(2)
-    disp_quad(4, 0, 5, 1)
-    disp_singl(3)
+    if sideh == 2
+      disp_singl(2, tileh)
+    else
+      disp_singl(2)
+    end
+    if sideh == 4 || sideh == 0 || sideh == 5 || sideh == 1
+      disp_quad(4, 0, 5, 1, sideh, tileh)
+    else
+      disp_quad(4, 0, 5, 1)
+    end
+    if sideh == 3
+      disp_singl(3, tileh)
+    else
+      disp_singl(3)
+    end
   end
 end
 
@@ -346,6 +407,7 @@ class Controller
   def initialize(cube, view)
     @cube = cube
     @view = view
+    @messages = 0
   end
   public
   def rotate(way)
@@ -364,75 +426,76 @@ class Controller
     @cube.turn_down(spalte)
   end
   def respond_to_user_input
-    # asdw for cursor movements
+    # asdw for cursor movements, jkli for changing the cube
     clear_code = %x{clear}
     tile = 4
     side = 0
+    s_ch = false
     sides = ["front", "back", "top", "bottom", "left", "right"]
+    puts "Cursor at side: #{sides[side]}, tile #{tile}."
     while (c = getch) != "\e" 
-      print clear_code
-      puts "Cursor at side: #{sides[side]}, tile #{tile}."
-      @view.display
+      
+      
       case c
       when "a"
-        case tile
-        when 0, 3, 7
+        if tile == 0 || tile == 3 || tile == 6
           s_ch = true
-          case tile
+        end
+        case tile
+        when 0
+          tile = 2
+        when 3
+          tile = 5
+        when 6
+          tile = 8
+        else
+          tile = tile - 1
+        end
+        if s_ch == true
+          case side
           when 0
-            tile = 2
-          when 3
-            tile = 5
-          when 6
-            tile = 8
+            side = 4
+          when 1
+            side = 5
+          when 4
+            side = 1
+          when 5
+            side = 0
           else
-            tile = tile - 1
           end
-          if s_ch == true
-            case side
-            when 0
-              side = 4
-            when 1
-              side = 5
-            when 4
-              side = 1
-            when 5
-              side = 0
-            else
-            end
-          end
+          s_ch = false  
         end
       when "d"
-        case tile
-        when 2, 5, 8
+        if tile == 2 || tile == 5 || tile == 8
           s_ch = true
-          case tile
-          when 2
-            tile = 0
+        end
+        case tile
+        when 2
+          tile = 0
+        when 5
+          tile = 3
+        when 8
+          tile = 6
+        else
+          tile = tile + 1
+        end
+        if s_ch == true
+          case side
+          when 0
+            side = 5
+          when 1
+            side = 4
+          when 4
+            side = 0
           when 5
-            tile = 3
-          when 8
-            tile = 6
+            side = 1
           else
-            tile = tile + 1
           end
-          if s_ch == true
-            case side
-            when 0
-              side = 5
-            when 1
-              side = 4
-            when 4
-              side = 0
-            when 5
-              side = 1
-            else
-            end
-          end
+          s_ch = false
         end
       when "s"
         if tile == 6 || tile == 7 || tile == 8
-          s_ch == true
+          s_ch = true
         end
         case tile
         when 6
@@ -453,11 +516,12 @@ class Controller
           when 2
             side = 0
           end
+          s_ch = false
         end
         
       when "w"
         if tile == 0 || tile == 1 || tile == 2
-          s_ch == true
+          s_ch = true
         end
         case tile
         when 0
@@ -478,6 +542,7 @@ class Controller
           when 2
             side = 3
           end
+          s_ch = false
         end
       when "j"
         case side
@@ -486,9 +551,10 @@ class Controller
           when 0, 1, 2
             turn_clock(0)
           when 3, 4, 5
-            turn_clock(3)
+            @messages = "hallooo #{tile}"
+            turn_clock(1)
           when 6, 7, 8
-            turn_clock(6)
+            turn_clock(2)
           end
         when 2
           rotate("down")
@@ -496,9 +562,9 @@ class Controller
           when 0, 1, 2
             turn_clock(0)
           when 3, 4, 5
-            turn_clock(3)
+            turn_clock(1)
           when 6, 7, 8
-            turn_clock(6)
+            turn_clock(2)
           end
           rotate("up")
         when 3
@@ -507,9 +573,9 @@ class Controller
           when 0, 1, 2
             turn_clock(0)
           when 3, 4, 5
-            turn_clock(3)
+            turn_clock(1)
           when 5, 6, 7
-            turn_clock(6)
+            turn_clock(2)
           end
           rotate("down")
         end
@@ -520,9 +586,9 @@ class Controller
           when 0, 1, 2
             turn_counter_clock(0)
           when 3, 4, 5
-            turn_counter_clock(3)
+            turn_counter_clock(1)
           when 6, 7, 8
-            turn_counter_clock(6)
+            turn_counter_clock(2)
           end
         when 2
           rotate("down")
@@ -530,9 +596,9 @@ class Controller
           when 0, 1, 2
             turn_counter_clock(0)
           when 3, 4, 5
-            turn_counter_clock(3)
+            turn_counter_clock(1)
           when 6, 7, 8
-            turn_counter_clock(6)
+            turn_counter_clock(2)
           end
           rotate("up")
         when 3
@@ -541,14 +607,15 @@ class Controller
           when 0, 1, 2
             turn_counter_clock(0)
           when 3, 4, 5
-            turn_counter_clock(3)
+            turn_counter_clock(1)
           when 6, 7, 8
-            turn_counter_clock(6)
+            turn_counter_clock(2)
           end
+          rotate("down")
         end
       when "i"
         case side
-        when 0, 1, 2, 3
+        when 0, 2, 3
           case tile
           when 0, 3, 6
             turn_up(0)
@@ -556,6 +623,21 @@ class Controller
             turn_up(1)
           when 2, 5, 8
             turn_up(2)
+          end
+        when 1
+          2.times do
+            rotate("clock")
+          end
+          case tile
+          when 0, 3, 6
+            turn_up(0)
+          when 1, 4, 7
+            turn_up(1)
+          when 2, 5, 8
+            turn_up(2)
+          end
+          2.times do
+            rotate("counter_clock")
           end
         when 4
           rotate("counter_clock")
@@ -582,7 +664,7 @@ class Controller
         end
       when "k"
         case side
-        when 0, 1, 2, 3
+        when 0, 2, 3
           case tile
           when 0, 3, 6
             turn_down(0)
@@ -590,6 +672,21 @@ class Controller
             turn_down(1)
           when 2, 5, 8
             turn_down(2)
+          end
+        when 1
+          2.times do
+            rotate("clock")
+          end
+          case tile
+          when 0, 3, 6
+            turn_down(0)
+          when 1, 4, 7
+            turn_down(1)
+          when 3, 5, 8
+            turn_down(2)
+          end
+          2.times do
+            rotate("clock")
           end
         when 4
           rotate("counter_clock")
@@ -600,8 +697,9 @@ class Controller
             turn_down(1)
           when 2, 5, 8
             turn_down(2)
-            rotate("clock")
+            
           end
+          rotate("clock")
         when 5
           rotate("clock")
           case tile
@@ -612,9 +710,14 @@ class Controller
           when 2, 5, 8
             turn_down(2)
           end
+          rotate("counter_clock")
         end
       end
-      
+      print clear_code
+      puts c
+      puts @messages
+      puts "Cursor at side: #{sides[side]}, tile #{tile}."
+      @view.display(side, tile)
     end
   end
   
@@ -630,9 +733,10 @@ cub = Wuerfel.new
 dispcube = View.new(cub)
 
 contcube = Controller.new(cub, dispcube)
-dispcube.display
-contcube.rotate("up")
-dispcube.display
-contcube.rotate("down")
-dispcube.display
+#dispcube.display(0, 4)
+#dispcube.display
+#contcube.rotate("up")
+#dispcube.display
+#contcube.rotate("down")
+
 contcube.respond_to_user_input
