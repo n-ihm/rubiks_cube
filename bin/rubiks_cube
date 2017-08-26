@@ -1,0 +1,22 @@
+#!/usr/bin/ruby
+# coding: utf-8
+# -*-Ruby-*-
+# coding: utf-8
+#require 'pry'
+# blickrichtung auf den würfel von forne(vorderseite front
+require_relative '../lib/controller'
+require_relative '../lib/aut_controller'
+require_relative '../lib/view'
+require_relative '../lib/wuerfel'
+
+cub = Wuerfel.new
+dispcube = View.new(cub)
+
+contcube = Controller.new(cub, dispcube)
+#dispcube.display(0, 4)
+#dispcube.display
+#contcube.rotate("up")
+#dispcube.display
+#contcube.rotate("down")
+
+contcube.respond_to_user_input
