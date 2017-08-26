@@ -38,8 +38,71 @@ class Wuerfel
     
     @seiten = [@front, @back, @top, @bottom, @left, @right]
   end
+  private
+  def m_side(a)
+    sides_found = Array.new(9)
+    s_found = 0
+    count = 0
+    count2 = 0
+    9.times do
+      while count2 < 9
+        if @seiten[count][count2] == a
+          sides_found[s_found] = [count, count2]
+          s_found = s_found + 1
+        end
+        count_2 = count_2 + 1
+      end
+      count = count + 1
+    end
+    return sides_found
+  end
+
   public
-  
+  def match_side(colour)
+    case colour
+    when 1
+      m_sides(1)
+    when 2
+      m_sides(2)
+    when 3
+      m_sides(3)
+    when 4
+      m_sides(4)
+    when 5
+      m_sides(5)
+    when 6
+      m_sides(6)
+    end
+  end
+  def find_pos(match_side_array, pos)
+    # positions are side, corner
+    found = Array.new
+    founda = 0
+    case pos
+    when "side"
+      count = 0
+      while count < 9
+        if match_side_array[count][1] == 1 || match_side_array[count][1] == 3 || match_side_array[count][1] == 5 || match_side_array[count][1] == 7
+          found[founda] = [match_side_array[count][0], match_side_array[count][1]]
+          founda = founda + 1
+        end
+        count = count + 1
+      end
+    when "corner"
+      count = 0
+      while count < 9
+        if match_side_array[count][1] == 0 || match_side_array[count][1] == 2 || match_side_array[count][1] == 6 || match_side_array[count][1] == 8
+          found[founda] = [match_side_array[count][0], match_side_array[count][1]]
+          founda = founda + 1
+        end
+        count = count + 1
+      end
+    end
+    return found
+  end
+          
+          
+ 
   def get_square(side, number)
     return @seiten[side][number]
   end
@@ -551,7 +614,6 @@ class Controller
           when 0, 1, 2
             turn_clock(0)
           when 3, 4, 5
-            @messages = "hallooo #{tile}"
             turn_clock(1)
           when 6, 7, 8
             turn_clock(2)
@@ -720,13 +782,25 @@ class Controller
       @view.display(side, tile)
     end
   end
-  
 end
 
-
-
-
-
+class Aut_controller
+  def initialize(cube, view)
+    @cube = cube
+    @view = view
+  end
+  def make_bottom_cross
+    b_color = @cube.get_square(3, 4)
+    b_color_a = @cube.match_side(b_color)
+    matching_sides = @cube.find_pos(b_color_a, "side")
+  end
+  def solve
+    state = "unsolved"
+    case state
+    when "unsolved"
+    end
+  end
+end
 
 
 cub = Wuerfel.new
