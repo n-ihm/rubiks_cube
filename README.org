@@ -1,0 +1,3 @@
+* rubiks_cube
+
+  An interactive representation of a Rubik's Cube.
